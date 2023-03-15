@@ -2,6 +2,7 @@
 
 import rospy
 import numpy as np
+import time
 
 from visual_servoing.msg import ConeLocation, ParkingError
 from ackermann_msgs.msg import AckermannDriveStamped
@@ -29,14 +30,28 @@ class ParkingController():
     def relative_cone_callback(self, msg):
         self.relative_x = msg.x_pos
         self.relative_y = msg.y_pos
+        
+        print(self.relative_x, self.relative_y)
+
         drive_cmd = AckermannDriveStamped()
 
-        #################################
+        x = self.relative_x
+        y = self.relative_y
 
-        # YOUR CODE HERE
-        # Use relative position and your control law to set drive_cmd
+        err = y/(x*( (y/x)**2+1)**0.5)*abs(x)/x
 
-        #################################
+        err = min(max(-0.34, err), 0.34)
+        
+        drive_cmd.drive.steering_angle = err
+        drive_cmd.drive.steering_angle_velocity = 0
+        drive_cmd.drive.speed = 0.5 * abs(x-self.parking_distance)/(x-self.parking_distance)
+        drive_cmd.drive.acceleration = 0
+        drive_cmd.drive.jerk = 0
+        
+
+        if abs(y) < 0.03 and abs(x-self.parking_distance) < 0.03:
+            drive_cmd.drive.speed = 0
+            drive_cmd.drive.steering_angle = 0
 
         self.drive_pub.publish(drive_cmd)
         self.error_publisher()
@@ -48,19 +63,14 @@ class ParkingController():
         """
         error_msg = ParkingError()
 
-        #################################
+        error_msg.x_error = self.relative_x
+        error_msg.y_error = self.relative_y
+        error_msg.distance_error = (self.relative_x**2 + self.relative_y**2)**0.5
 
-        # YOUR CODE HERE
-        # Populate error_msg with relative_x, relative_y, sqrt(x^2+y^2)
-
-        #################################
-        
         self.error_pub.publish(error_msg)
 
 if __name__ == '__main__':
-    try:
-        rospy.init_node('ParkingController', anonymous=True)
-        ParkingController()
-        rospy.spin()
-    except rospy.ROSInterruptException:
-        pass
+    rospy.init_node('ParkingController' )
+    print('starting parking contr')
+    ParkingController()
+    rospy.spin()
