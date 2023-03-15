@@ -20,10 +20,10 @@ from visual_servoing.msg import ConeLocation, ConeLocationPixel
 
 ######################################################
 ## DUMMY POINTS -- ENTER YOUR MEASUREMENTS HERE
-PTS_IMAGE_PLANE = [[-1, -1],
-                   [-1, -1],
-                   [-1, -1],
-                   [-1, -1]] # dummy points
+PTS_IMAGE_PLANE = [[287, 312],
+                   [466, 310],
+                   [411, 255],
+                   [292, 254]] # dummy points
 ######################################################
 
 # PTS_GROUND_PLANE units are in inches
@@ -31,10 +31,10 @@ PTS_IMAGE_PLANE = [[-1, -1],
 
 ######################################################
 ## DUMMY POINTS -- ENTER YOUR MEASUREMENTS HERE
-PTS_GROUND_PLANE = [[-1, -1],
-                    [-1, -1],
-                    [-1, -1],
-                    [-1, -1]] # dummy points
+PTS_GROUND_PLANE = [[12.5, 2],
+                    [12.5, -5.5],
+                    [20.5, -5.5],
+                    [20.5, 2]] # dummy points
 ######################################################
 
 METERS_PER_INCH = 0.0254
@@ -44,6 +44,8 @@ class HomographyTransformer:
     def __init__(self):
         self.cone_px_sub = rospy.Subscriber("/relative_cone_px", ConeLocationPixel, self.cone_detection_callback)
         self.cone_pub = rospy.Publisher("/relative_cone", ConeLocation, queue_size=10)
+
+        self.mouse_sub = rospy.Subscirber("/zed/zed_node/rgb/image_rect_color_mouse_left", Marker, self.mouse_callback)
 
         self.marker_pub = rospy.Publisher("/cone_marker",
             Marker, queue_size=1)
@@ -63,6 +65,11 @@ class HomographyTransformer:
 
         self.h, err = cv2.findHomography(np_pts_image, np_pts_ground)
 
+    def mouse_callback(self, data):
+        x = data.x
+        y = data.y
+        self.draw_marker(x, y, "/map")
+
     def cone_detection_callback(self, msg):
         #Extract information from message
         u = msg.u
@@ -77,6 +84,8 @@ class HomographyTransformer:
         relative_xy_msg.y_pos = y
 
         self.cone_pub.publish(relative_xy_msg)
+
+        #self.draw_marker(287, 312, "test") #change frame
 
 
     def transformUvToXy(self, u, v):
