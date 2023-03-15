@@ -47,9 +47,6 @@ def cd_color_segmentation(img, template):
 	# Make a mask from HSV
 	mask = cv2.inRange(hsv_img, light_orange, dark_orange)
 
-	# Apply mask to image
-	blob = cv2.bitwise_and(img, img, mask=mask)
-
 	# Find all the contours in the mask
 	contours, hierarchy = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
