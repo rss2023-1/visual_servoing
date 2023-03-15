@@ -23,6 +23,7 @@ def image_print(img):
 	cv2.waitKey(0)
 	cv2.destroyAllWindows()
 
+
 def cd_color_segmentation(img, template):
 	"""
 	Implement the cone detection using color segmentation algorithm
@@ -35,9 +36,46 @@ def cd_color_segmentation(img, template):
 	"""
 	########## YOUR CODE STARTS HERE ##########
 
-	bounding_box = ((0,0),(0,0))
+	bounding_box = None
 
-	########### YOUR CODE ENDS HERE ###########
+	light_orange = (8, 50, 50)
+	dark_orange = (15, 255, 255)
+
+	# Convert to HSV
+	hsv_img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+
+	# Make a mask from HSV
+	mask = cv2.inRange(hsv_img, light_orange, dark_orange)
+
+	# Apply mask to image
+	blob = cv2.bitwise_and(img, img, mask=mask)
+
+	# Find all the contours in the mask
+	contours, hierarchy = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+	if len(contours) != 0:
+		# Find the biggest countour (c)
+		c = max(contours, key=cv2.contourArea)
+		x,y,w,h = cv2.boundingRect(c)
+
+		bounding_box = ((x,y),(x+w,y+h))
 
 	# Return bounding box
 	return bounding_box
+
+
+
+if __name__ == "__main__":
+	# Read in image
+	img = cv2.imread("test_images_cone/test15.jpg")
+
+	# Run your algorithm
+	bbox = cd_color_segmentation(img, None)
+
+	# Draw bounding box
+	cv2.rectangle(img, bbox[0], bbox[1], (0, 255, 0), 2)
+
+	# Display image
+	image_print(img)
+	print("Bounding box: ", bbox)
+	print("Done")
