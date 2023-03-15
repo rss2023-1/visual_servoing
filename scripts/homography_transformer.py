@@ -20,10 +20,10 @@ from visual_servoing.msg import ConeLocation, ConeLocationPixel
 
 ######################################################
 ## DUMMY POINTS -- ENTER YOUR MEASUREMENTS HERE
-PTS_IMAGE_PLANE = [[-1, -1],
-                   [-1, -1],
-                   [-1, -1],
-                   [-1, -1]] # dummy points
+PTS_IMAGE_PLANE = [[193 287],
+                   [382 274],
+                   [580 274],
+                   [209, 251]] # dummy points
 ######################################################
 
 # PTS_GROUND_PLANE units are in inches
@@ -31,10 +31,10 @@ PTS_IMAGE_PLANE = [[-1, -1],
 
 ######################################################
 ## DUMMY POINTS -- ENTER YOUR MEASUREMENTS HERE
-PTS_GROUND_PLANE = [[-1, -1],
-                    [-1, -1],
-                    [-1, -1],
-                    [-1, -1]] # dummy points
+PTS_GROUND_PLANE = [[11, -6],
+                    [17, 3]
+                    [17, 12],
+                    [22, -10]] # dummy points
 ######################################################
 
 METERS_PER_INCH = 0.0254

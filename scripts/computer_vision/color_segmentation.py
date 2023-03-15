@@ -48,7 +48,7 @@ def cd_color_segmentation(img, template):
 	mask = cv2.inRange(hsv_img, light_orange, dark_orange)
 
 	# Find all the contours in the mask
-	contours, hierarchy = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+	_, contours, hierarchy = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
 	if len(contours) != 0:
 		# Find the biggest countour (c)

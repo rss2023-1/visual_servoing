@@ -2,6 +2,8 @@ import cv2
 import imutils
 import numpy as np
 import pdb
+from matplotlib import pyplot as plt
+import random
 
 #################### X-Y CONVENTIONS #########################
 # 0,0  X  > > > > >
@@ -66,18 +68,38 @@ def cd_sift_ransac(img, template):
 
 		h, w = template.shape
 		pts = np.float32([ [0,0],[0,h-1],[w-1,h-1],[w-1,0] ]).reshape(-1,1,2)
-
+		
+		
+        
+		#print(matchesMask)
 		########## YOUR CODE STARTS HERE ##########
+		print(pts)
+		print(M)
+		dst = cv2.perspectiveTransform(pts,M)
+		print(dst)
+		x,y = [],[]
+		for i in range(0,len(dst)):
+		    x.append(dst[:][i][0][0])
+		    y.append(dst[:][i][0][1])
+		x_min = min(x)#int(mapped[radii.index(min(radii))][0][0])
+		x_max = max(x)#int(mapped[radii.index(max(radii))][0][0])
+		y_min = min(y)#int(mapped[radii.index(min(radii))][0][1])
+		y_max = max(y)#int(mapped[radii.index(max(radii))][0][1])
+        
+		img3 = cv2.drawMatches(template, kp1, img, kp2, good[:], img, flags=2)
+		plt.imshow(img3),plt.show()
 
-		x_min = y_min = x_max = y_max = 0
-
+		cv2.rectangle(img, (x_min,y_min), (x_max,y_max), color=(0,255,0), thickness=2)
+		filename = "./scores/example_with_bounding_boxes" + str(x_min) + ".jpg"
+		cv2.imwrite(filename, img)
 		########### YOUR CODE ENDS HERE ###########
-
+        
+		print(x_min,y_min,x_max,y_max,1000)
 		# Return bounding box
 		return ((x_min, y_min), (x_max, y_max))
 	else:
 
-		print "[SIFT] not enough matches; matches: ", len(good)
+		print("[SIFT] not enough matches; matches: ", len(good))
 
 		# Return bounding box of area 0 if no match found
 		return ((0,0), (0,0))
@@ -104,6 +126,9 @@ def cd_template_matching(img, template):
 	best_match = None
 
 	# Loop over different scales of image
+	bestScore = 0
+	bestScale = 1
+	bounding_box = ((0,0),(0,0))
 	for scale in np.linspace(1.5, .5, 50):
 		# Resize the image
 		resized_template = imutils.resize(template_canny, width = int(template_canny.shape[1] * scale))
@@ -115,10 +140,29 @@ def cd_template_matching(img, template):
 		########## YOUR CODE STARTS HERE ##########
 		# Use OpenCV template matching functions to find the best match
 		# across template scales.
-
+		result = cv2.matchTemplate(img_canny,template_canny,cv2.TM_CCOEFF_NORMED)
+		(minVal, maxVal, minLoc, maxLoc) = cv2.minMaxLoc(result)
+		
+		if bestScore < maxVal:
+			bestScore = maxVal
+			bestScale = scale
+			(startX, startY) = maxLoc
+			endX = startX + resized_template.shape[1]
+			endY = startY + resized_template.shape[0]
+			bounding_box = ((startX,startY),(endX,endY))
 		# Remember to resize the bounding box using the highest scoring scale
 		# x1,y1 pixel will be accurate, but x2,y2 needs to be correctly scaled
-		bounding_box = ((0,0),(0,0))
+    
+	print(bestScore)
+	print(bounding_box[0])
+	print(bounding_box[1])
+	cv2.rectangle(img, bounding_box[0], bounding_box[1], (255, 0, 0), 3)
+
+		# show the output image
+	cv2.imshow("Output", img)
+	filename = "./scores/cone" + str(random.randint(0,50)) + ".jpg"
+	cv2.imwrite(filename, img)
+
 		########### YOUR CODE ENDS HERE ###########
 
 	return bounding_box
