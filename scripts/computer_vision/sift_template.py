@@ -66,10 +66,15 @@ def cd_sift_ransac(img, template):
 
 		h, w = template.shape
 		pts = np.float32([ [0,0],[0,h-1],[w-1,h-1],[w-1,0] ]).reshape(-1,1,2)
-
+		
+		print(pts.shape)
 		########## YOUR CODE STARTS HERE ##########
 
-		x_min = y_min = x_max = y_max = 0
+		x_min = np.min(pts[:, :, :0])
+		x_max = np.max(pts[:, :, :0])
+
+		y_min = np.min(pts[:, :, 1])
+		y_max = np.max(pts[:, :, :0])
 
 		########### YOUR CODE ENDS HERE ###########
 
@@ -102,7 +107,7 @@ def cd_template_matching(img, template):
 
 	# Keep track of best-fit match
 	best_match = None
-
+	best_val = None
 	# Loop over different scales of image
 	for scale in np.linspace(1.5, .5, 50):
 		# Resize the image
@@ -115,10 +120,16 @@ def cd_template_matching(img, template):
 		########## YOUR CODE STARTS HERE ##########
 		# Use OpenCV template matching functions to find the best match
 		# across template scales.
+		res = cv2.matchTemplate(grey_img, resized_template, cv2.TM_CCOEFF)
 
+		_, max_val, _, max_loc = cv2.minMaxLoc(res)
 		# Remember to resize the bounding box using the highest scoring scale
 		# x1,y1 pixel will be accurate, but x2,y2 needs to be correctly scaled
-		bounding_box = ((0,0),(0,0))
+		bounding_box = (max_loc, (max_loc[0] + w, max_loc[1] + h))
+		if best_val is None or max_val > best_val:
+			best_match = bounding_box
+			best_val = max_val
+
 		########### YOUR CODE ENDS HERE ###########
 
 	return bounding_box

@@ -31,6 +31,7 @@ def iou_score(bbox1, bbox2):
         score: float; the IoU score
     """
     # First check bbox is coming in the correct order
+    print(bbox1, bbox2)
     if bbox1[0][0] > bbox1[1][0] or bbox1[0][1] > bbox1[1][1]:
         print ("Check that you are returning bboxes as ((xmin, ymin),(xmax,ymax))")
     # Determine intersection rectangle
