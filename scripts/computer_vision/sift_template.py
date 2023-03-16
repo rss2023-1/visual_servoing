@@ -68,12 +68,12 @@ def cd_sift_ransac(img, template):
 		pts = np.float32([ [0,0],[0,h-1],[w-1,h-1],[w-1,0] ]).reshape(-1,1,2)
 		
 		########## YOUR CODE STARTS HERE ##########
-		dst = cv2.perspectiveTransform(pts, M)
-		x_min = np.min(dst[:, :, 0])
-		x_max = np.max(dst[:, :, 0])
+		transformed_points = cv2.perspectiveTransform(pts, M)
+		x_min = np.min(transformed_points[:, :, 0])
+		x_max = np.max(transformed_points[:, :, 0])
 
-		y_min = np.min(dst[:, :, 1])
-		y_max = np.max(dst[:, :, 1])
+		y_min = np.min(transformed_points[:, :, 1])
+		y_max = np.max(transformed_points[:, :, 1])
 
 		########### YOUR CODE ENDS HERE ###########
 
