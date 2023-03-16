@@ -67,14 +67,13 @@ def cd_sift_ransac(img, template):
 		h, w = template.shape
 		pts = np.float32([ [0,0],[0,h-1],[w-1,h-1],[w-1,0] ]).reshape(-1,1,2)
 		
-		print(pts.shape)
 		########## YOUR CODE STARTS HERE ##########
+		dst = cv2.perspectiveTransform(pts, M)
+		x_min = np.min(dst[:, :, 0])
+		x_max = np.max(dst[:, :, 0])
 
-		x_min = np.min(pts[:, :, :0])
-		x_max = np.max(pts[:, :, :0])
-
-		y_min = np.min(pts[:, :, 1])
-		y_max = np.max(pts[:, :, 1])
+		y_min = np.min(dst[:, :, 1])
+		y_max = np.max(dst[:, :, 1])
 
 		########### YOUR CODE ENDS HERE ###########
 
@@ -82,7 +81,7 @@ def cd_sift_ransac(img, template):
 		return ((x_min, y_min), (x_max, y_max))
 	else:
 
-		print "[SIFT] not enough matches; matches: ", len(good)
+		print("[SIFT] not enough matches; matches: ", len(good))
 
 		# Return bounding box of area 0 if no match found
 		return ((0,0), (0,0))
