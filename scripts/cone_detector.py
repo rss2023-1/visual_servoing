@@ -52,11 +52,12 @@ class ConeDetector():
         rotated = image
         if (ZED_UPSIDEDOWN):
             rotated = imutils.rotate(image, 180)
+
         if (LINE_FOLLOWER):
             h = image_msg.height
             w = image_msg.width
             rotated = rotated[0:w, h/2.0:(5.0*h/6)]
-        bbox = cd_color_segmentation(image, "no_template")
+        bbox = cd_color_segmentation(rotated, "no_template")
         pixel_msg = ConeLocationPixel()
         # publishing middle x and bottom y of bbox
         if (bbox[1] == (0,0)):
