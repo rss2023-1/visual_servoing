@@ -79,8 +79,8 @@ class HomographyTransformer:
 
         if u == -1.0 and v == -1.0:
             relative_xy_msg = ConeLocation()
-            relative_xy_msg.x = -1.0
-            relative_xy_msg.y = -1.0
+            relative_xy_msg.x_pos = -1.0
+            relative_xy_msg.y_pos = -1.0
 
         else:
 
