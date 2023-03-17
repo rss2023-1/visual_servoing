@@ -22,7 +22,7 @@ class ParkingController():
         self.error_pub = rospy.Publisher("/parking_error",
             ParkingError, queue_size=10)
 
-        self.parking_distance = .75 # meters; try playing with this number!
+        self.parking_distance = .5 # meters; try playing with this number!
         self.forward_speed = 0.5
         self.reverse_speed = -0.5
         self.relative_x = 0

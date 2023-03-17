@@ -37,10 +37,10 @@ def cd_color_segmentation(img, template):
 	hsv_img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV_FULL)
 	# orange ranges in hues from 30-45
 	# settings for good performance on testing: (0, 220, 90), (45, 255, 255)
-	mask = cv2.inRange(hsv_img, (0, 220, 150), (45, 255, 255))
-	kernel = np.ones((5,5), np.uint8)
+	mask = cv2.inRange(hsv_img, (0, 150, 90), (45, 255, 255))
+	kernel = np.ones((3,3), np.uint8)
 	eroded = cv2.erode(mask, kernel)
-	dilated = cv2.dilate(eroded, d_kern)
+	dilated = cv2.dilate(eroded, kernel)
 	# image_print(eroded)
 	# image_print(dilated)
 	# Extract contours

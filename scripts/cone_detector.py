@@ -48,7 +48,7 @@ class ConeDetector():
         image = self.bridge.imgmsg_to_cv2(image_msg, "bgr8")
         # flip camera image if upsidedown
         ZED_UPSIDEDOWN = True
-        LINE_FOLLOWER = True
+        LINE_FOLLOWER = False
         rotated = image
         if (ZED_UPSIDEDOWN):
             rotated = imutils.rotate(image, 180)
@@ -56,7 +56,7 @@ class ConeDetector():
         if (LINE_FOLLOWER):
             h = image_msg.height
             w = image_msg.width
-            rotated = rotated[0:w, h/2.0:(5.0*h/6)]
+            rotated = rotated[int(3*h/4.0):, 0:]
         bbox = cd_color_segmentation(rotated, "no_template")
         pixel_msg = ConeLocationPixel()
         # publishing middle x and bottom y of bbox
@@ -66,7 +66,8 @@ class ConeDetector():
         else:
             pixel_msg.u = (bbox[0][0] + bbox[1][0]) * 0.5
             if (LINE_FOLLOWER):
-                pixel_msg.v = bbox[1][1] + h/2.0
+		h = image_msg.height
+                pixel_msg.v = bbox[0][1] + int(3*h/4.0)
             else: 
                 pixel_msg.v = bbox[1][1]
         self.cone_pub.publish(pixel_msg)
