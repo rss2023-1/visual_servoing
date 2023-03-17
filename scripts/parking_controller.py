@@ -16,7 +16,7 @@ class ParkingController():
         rospy.Subscriber("/relative_cone", ConeLocation,
             self.relative_cone_callback)
 
-        DRIVE_TOPIC = rospy.get_param("parking_controller/drive_topic") # set in launch file; different for simulator vs racecar
+        DRIVE_TOPIC = rospy.get_param("~drive_topic") # set in launch file; different for simulator vs racecar
         self.drive_pub = rospy.Publisher(DRIVE_TOPIC,
             AckermannDriveStamped, queue_size=10)
         self.error_pub = rospy.Publisher("/parking_error",
@@ -104,6 +104,10 @@ class ParkingController():
 
         # YOUR CODE HERE
         # Populate error_msg with relative_x, relative_y, sqrt(x^2+y^2)
+
+        error_msg.x_error = self.relative_x
+        error_msg.y_error = self.relative_y 
+        error_msg.distance_error = np.sqrt(self.relative_x**2+self.relative_y**2)
 
         #################################
         
