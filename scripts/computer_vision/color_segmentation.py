@@ -49,9 +49,10 @@ def cd_color_segmentation(img, template):
 	# image_print(eroded)
 	# image_print(dilated)
 	# Extract contours
-	contours, hierarchy = cv2.findContours(dilated, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+	contour_results = cv2.findContours(dilated, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+	contours = contour_results[1]
 	outlined = cv2.drawContours(img, contours, -1, (0, 255, 255), 3)
-	# print(len(contours))
+	#print(type(contours)
 	# image_print(outlined)
 	sortedContours = sorted(contours, key=cv2.contourArea, reverse=True)
 	if (len(contours) > 0):
