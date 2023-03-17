@@ -11,6 +11,7 @@ from sensor_msgs.msg import Image
 from ackermann_msgs.msg import AckermannDriveStamped
 from visualization_msgs.msg import Marker
 from visual_servoing.msg import ConeLocation, ConeLocationPixel
+from geometry_msgs.msg import Point
 
 #The following collection of pixel locations and corresponding relative
 #ground plane locations are used to compute our homography matrix
@@ -45,7 +46,7 @@ class HomographyTransformer:
         self.cone_px_sub = rospy.Subscriber("/relative_cone_px", ConeLocationPixel, self.cone_detection_callback)
         self.cone_pub = rospy.Publisher("/relative_cone", ConeLocation, queue_size=10)
 
-        self.mouse_sub = rospy.Subscirber("/zed/zed_node/rgb/image_rect_color_mouse_left", Marker, self.mouse_callback)
+        self.mouse_sub = rospy.Subscriber("/zed/zed_node/rgb/image_rect_color_mouse_left", Point, self.mouse_callback)
 
         self.marker_pub = rospy.Publisher("/cone_marker",
             Marker, queue_size=1)
@@ -68,7 +69,8 @@ class HomographyTransformer:
     def mouse_callback(self, data):
         x = data.x
         y = data.y
-        self.draw_marker(x, y, "/map")
+        u, v = self.transformUvtoXy(x, y)
+        self.draw_marker(u, v, "/base_link")
 
     def cone_detection_callback(self, msg):
         #Extract information from message
