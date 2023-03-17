@@ -23,6 +23,8 @@ class ParkingController():
             ParkingError, queue_size=10)
 
         self.parking_distance = .75 # meters; try playing with this number!
+        self.forward_speed = 0.5
+        self.reverse_speed = -0.5
         self.relative_x = 0
         self.relative_y = 0
 
@@ -51,7 +53,7 @@ class ParkingController():
         drive_cmd.header.stamp = rospy.Time.now()
         drive_cmd.header.frame_id = 'constant'
         
-        drive_cmd.drive.speed = 1
+        drive_cmd.drive.speed = self.forward_speed
 
         #################################
 
@@ -59,7 +61,7 @@ class ParkingController():
         # Use relative position and your control law to set drive_cmd
 
         if self.reverse < self.reverse_time: # Check if reversing
-            drive_cmd.drive.speed = -1
+            drive_cmd.drive.speed = self.reverse_speed
             self.reverse = self.reverse + 1
         else:
             theta = np.arctan2(self.relative_y, self.relative_x)
@@ -78,9 +80,9 @@ class ParkingController():
                             drive_cmd.drive.steering_angle = 0
                 elif dist < self.parking_distance and abs(theta) <= 0.05: # If too close too cone but aligned, back up
                     drive_cmd.drive.steering_angle = 0
-                    drive_cmd.drive.speed = -1
+                    drive_cmd.drive.speed = self.reverse_speed
                 else: # Too close and not aligned, reverse for a few timesteps then retry
-                    drive_cmd.drive.speed = -1
+                    drive_cmd.drive.speed = self.reverse_speed
                     self.reverse = 0           
             else: # Cone not within FOV, drive in a circle to find
                 drive_cmd.drive.steering_angle = 0.34 # max steering angle
