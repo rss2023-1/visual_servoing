@@ -69,7 +69,7 @@ class HomographyTransformer:
     def mouse_callback(self, data):
         x = data.x
         y = data.y
-        u, v = self.transformUvtoXy(x, y)
+        u, v = self.transformUvToXy(x, y)
         self.draw_marker(u, v, "/base_link")
 
     def cone_detection_callback(self, msg):
