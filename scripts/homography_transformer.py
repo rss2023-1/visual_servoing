@@ -69,7 +69,7 @@ class HomographyTransformer:
     def mouse_callback(self, data):
         x = data.x
         y = data.y
-        u, v = self.transformUvtoXy(x, y)
+        u, v = self.transformUvToXy(x, y)
         self.draw_marker(u, v, "/base_link")
 
     def cone_detection_callback(self, msg):
@@ -77,13 +77,20 @@ class HomographyTransformer:
         u = msg.u
         v = msg.v
 
-        #Call to main function
-        x, y = self.transformUvToXy(u, v)
+        if u == -1.0 and v == -1.0:
+            relative_xy_msg = ConeLocation()
+            relative_xy_msg.x = -1.0
+            relative_xy_msg.y = -1.0
 
-        #Publish relative xy position of object in real world
-        relative_xy_msg = ConeLocation()
-        relative_xy_msg.x_pos = x
-        relative_xy_msg.y_pos = y
+        else:
+
+            #Call to main function
+            x, y = self.transformUvToXy(u, v)
+
+            #Publish relative xy position of object in real world
+            relative_xy_msg = ConeLocation()
+            relative_xy_msg.x_pos = x
+            relative_xy_msg.y_pos = y
 
         self.cone_pub.publish(relative_xy_msg)
 
