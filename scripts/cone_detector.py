@@ -2,6 +2,7 @@
 
 import numpy as np
 import rospy
+import imutils
 
 import cv2
 from cv_bridge import CvBridge, CvBridgeError
@@ -45,7 +46,11 @@ class ConeDetector():
         #################################
 
         image = self.bridge.imgmsg_to_cv2(image_msg, "bgr8")
-
+        # flip camera image if upsidedown
+        ZED_UPSIDEDOWN = True
+        rotated = image
+        if (ZED_UPSIDEDOWN):
+            rotated = imutils.rotate(image, 180)
         bbox = cd_color_segmentation(image, "no_template")
         pixel_msg = ConeLocationPixel()
         # publishing middle x and bottom y of bbox
