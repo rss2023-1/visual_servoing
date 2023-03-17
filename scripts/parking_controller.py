@@ -33,12 +33,16 @@ class ParkingController():
         self.reverse = self.reverse_time 
 
     def seeCone(self): # Replace this funciton with modules 1 and 2, currently simulates if cone is within camera FOV
-        theta_max = 36*np.pi/180 
-        theta_min = -36*np.pi/180 # Assume camera FOV 72 deg
-        if np.arctan2(self.relative_y, self.relative_x) < theta_max and np.arctan2(self.relative_y, self.relative_x) > theta_min:
-            return True
-        else:
+        # theta_max = 36*np.pi/180 
+        # theta_min = -36*np.pi/180 # Assume camera FOV 72 deg
+        # if np.arctan2(self.relative_y, self.relative_x) < theta_max and np.arctan2(self.relative_y, self.relative_x) > theta_min:
+        #    return True
+        # else:
+        #    return False
+        if self.relative_x == -1.0 and self.relative_y == -1.0:
             return False
+        else:
+            return True
 
     def relative_cone_callback(self, msg):
         self.relative_x = msg.x_pos
@@ -105,9 +109,9 @@ class ParkingController():
         # YOUR CODE HERE
         # Populate error_msg with relative_x, relative_y, sqrt(x^2+y^2)
 
-        error_msg.x_error = self.relative_x
-        error_msg.y_error = self.relative_y 
-        error_msg.distance_error = np.sqrt(self.relative_x**2+self.relative_y**2)
+        error_msg.x_error = self.relative_x - self.parking_distance
+        error_msg.y_error = self.relative_y
+        error_msg.distance_error = np.sqrt(self.relative_x**2+self.relative_y**2) - self.parking_distance
 
         #################################
         
