@@ -46,7 +46,7 @@ class HomographyTransformer:
         self.cone_px_sub = rospy.Subscriber("/relative_cone_px", ConeLocationPixel, self.cone_detection_callback)
         self.cone_pub = rospy.Publisher("/relative_cone", ConeLocation, queue_size=10)
 
-        self.mouse_sub = rospy.Subscirber("/zed/zed_node/rgb/image_rect_color_mouse_left", Point, self.mouse_callback)
+        self.mouse_sub = rospy.Subscriber("/zed/zed_node/rgb/image_rect_color_mouse_left", Point, self.mouse_callback)
 
         self.marker_pub = rospy.Publisher("/cone_marker",
             Marker, queue_size=1)
