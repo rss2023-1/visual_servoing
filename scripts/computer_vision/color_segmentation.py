@@ -36,20 +36,16 @@ def cd_color_segmentation(img, template):
 	########## YOUR CODE STARTS HERE ##########
 	hsv_img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV_FULL)
 	# orange ranges in hues from 30-45
-	#image_print(hsv_img)
 	# settings for good performance on testing: (0, 220, 90), (45, 255, 255)
 	mask = cv2.inRange(hsv_img, (0, 220, 150), (45, 255, 255))
-	# black = cv2.inRange(hsv_img, (10, 10, 10), (11, 11, 11))
-	# Use erosion and dilation to isolate 
-	# image_print(mask)
 	kernel = np.ones((5,5), np.uint8)
-	d_kern = np.ones((5,5), np.uint8)
 	eroded = cv2.erode(mask, kernel)
 	dilated = cv2.dilate(eroded, d_kern)
 	# image_print(eroded)
 	# image_print(dilated)
 	# Extract contours
 	contour_results = cv2.findContours(dilated, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+	# 0 for python3, 1 for python 2
 	contours = contour_results[1]
 	outlined = cv2.drawContours(img, contours, -1, (0, 255, 255), 3)
 	#print(type(contours)
@@ -62,8 +58,8 @@ def cd_color_segmentation(img, template):
 		# print("missed bb")
 		# image_print(img)
 	bounding_box = ((x,y),(x+w,y+h))
-	bounding_img = cv2.rectangle(img, bounding_box[0], bounding_box[1], (0,255,0),2)
-	# image_print(bounding_img)
+	#bounding_img = cv2.rectangle(img, bounding_box[0], bounding_box[1], (0,255,0),2)
+	#image_print(bounding_img)
 
 	########### YOUR CODE ENDS HERE ###########
 	# Return bounding box
