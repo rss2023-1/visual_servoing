@@ -22,8 +22,8 @@ class ParkingController():
         self.error_pub = rospy.Publisher("/parking_error",
             ParkingError, queue_size=10)
 
-        self.parking_distance = .5 # meters; try playing with this number!
-        self.forward_speed = 0.5
+        self.parking_distance = 0 # meters; try playing with this number!
+        self.forward_speed = 1.5
         self.reverse_speed = -0.5
         self.relative_x = 0
         self.relative_y = 0
@@ -75,7 +75,7 @@ class ParkingController():
                 elif dist > self.parking_distance: # If away from cone, control theta proportionally to align upon closing gap
                     if dist > self.parking_distance:
                         if theta != 0:
-                            drive_cmd.drive.steering_angle = theta
+                            drive_cmd.drive.steering_angle = theta - 0.031
                         else:
                             drive_cmd.drive.steering_angle = 0
                 elif dist < self.parking_distance and abs(theta) <= 0.05: # If too close too cone but aligned, back up
