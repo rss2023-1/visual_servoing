@@ -23,7 +23,7 @@ class ParkingController():
             ParkingError, queue_size=10)
 
         self.parking_distance = 0 # meters; try playing with this number!
-        self.forward_speed = 1.5
+        self.forward_speed = 0.5
         self.reverse_speed = -0.5
         self.relative_x = 0
         self.relative_y = 0
@@ -85,7 +85,12 @@ class ParkingController():
                     drive_cmd.drive.speed = self.reverse_speed
                     self.reverse = 0           
             else: # Cone not within FOV, drive in a circle to find
-                drive_cmd.drive.steering_angle = 0.34 # max steering angle
+                #turn in a circle
+                #drive_cmd.drive.steering_angle = 0.34 # max steering angle
+
+                #back up
+                drive_cmd.drive.speed = self.reverse_speed
+                drive_cmd.drive.steering_angle = 0
                 # This can get stuck in a circle if the cone is placed directly to the left of the wheel
                 # as a result of max turning radius and camera FOV. This may be resolved if the actual 
                 # camera has a wider FOV, though this could be solved in code by iterating a value everytime

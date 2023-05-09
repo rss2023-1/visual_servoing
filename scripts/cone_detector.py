@@ -23,7 +23,7 @@ class ConeDetector():
     """
     def __init__(self):
         # toggle line follower vs cone parker
-        self.LineFollower = False
+        self.LineFollower = True
 
         # Subscribe to ZED camera RGB frames
         self.cone_pub = rospy.Publisher("/relative_cone_px", ConeLocationPixel, queue_size=10)
@@ -48,7 +48,7 @@ class ConeDetector():
         image = self.bridge.imgmsg_to_cv2(image_msg, "bgr8")
         # flip camera image if upsidedown
         ZED_UPSIDEDOWN = True
-        LINE_FOLLOWER = False
+        LINE_FOLLOWER = True
         rotated = image
         if (ZED_UPSIDEDOWN):
             rotated = imutils.rotate(image, 180)
@@ -58,6 +58,10 @@ class ConeDetector():
             w = image_msg.width
             rotated = rotated[int(3*h/4.0):, 0:]
         bbox = cd_color_segmentation(rotated, "no_template")
+        print("bbox 0", bbox[0])
+        print("bbox 1", bbox[1])
+        print("bbox 01", bbox[0][1])
+        print("bbox 11", bbox[1][1])
         pixel_msg = ConeLocationPixel()
         # publishing middle x and bottom y of bbox
         if (bbox[1] == (0,0)):
@@ -65,9 +69,9 @@ class ConeDetector():
             pixel_msg.v = -1
         else:
             pixel_msg.u = (bbox[0][0] + bbox[1][0]) * 0.5
-            if (LINE_FOLLOWER):
-		h = image_msg.height
-                pixel_msg.v = bbox[0][1] + int(3*h/4.0)
+            if LINE_FOLLOWER:
+                h = image_msg.height
+                pixel_msg.v = bbox[0][1] #+ int(3*h/4.0)
             else: 
                 pixel_msg.v = bbox[1][1]
         self.cone_pub.publish(pixel_msg)
