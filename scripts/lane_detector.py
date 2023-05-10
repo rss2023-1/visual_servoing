@@ -304,7 +304,6 @@ class LaneDetector():
 		longest_right = self.select_longest(filtered_lines, right_filter)
 		longest_left = self.select_longest(filtered_lines, left_filter)
 		print(lines.shape)
-
 		# Draw the lines on the  image
 		"""
                 if(longest_right[0] == None):
@@ -316,35 +315,33 @@ class LaneDetector():
 		else:
 			cv2.line(line_image,(longest_left[0],longest_left[1]),(longest_left[2],longest_left[3]),(0,0,255),5)
 		"""
-                lines_edges = cv2.addWeighted(img, 0.8, line_image, 1, 0)
+        #lines_edges = cv2.addWeighted(img, 0.8, line_image, 1, 0)
 
 		# Draw center pixel on the image
 		lookahead = 150 # distance from bottom edge
 		n = img.shape[0]
-                print(img.shape)
-                midy = n - lookahead
-                one_lane_offset = 100
-
-                if (longest_right[0] == None and longest_left[0] == None):
-                    print("no lines!")
-                    mid_x = image.shape[1]/2
-                    return (mid_x, lookahead)
-                elif (longest_right[0] == None):
-                    print("no longest right")
-                    slope1 = -(longest_left[3]-longest_left[1])/(longest_left[2]-longest_left[0])
-                    midx1 = longest_left[0] + (longest_left[1]-midy)//slope1
-                    pixel = (midx1 + 300, midy)
-                    print(pixel)
-                    return pixel
-                elif (longest_left[0] == None):
-                    print("no longest left")
-                    slope2 = -(longest_right[3]-longest_right[1])/(longest_right[2]-longest_right[0])
-                    midx2 = longest_right[0] + (longest_right[1]-midy)//slope2
-                    pixel = (midx2 + one_lane_offset, midy)
-                    print(pixel)
-                    return pixel
-
-                x11 = longest_left[0]
+		print(img.shape)
+		midy = n - lookahead
+		one_lane_offset = 10
+		if (longest_right[0] == None and longest_left[0] == None):
+			print("no lines!")
+			mid_x = image.shape[1]/2
+			return (mid_x, lookahead)
+		elif (longest_right[0] == None):
+			print("no longest right")
+			slope1 = -(longest_left[3]-longest_left[1])/(longest_left[2]-longest_left[0])
+			midx1 = longest_left[0] + (longest_left[1]-midy)//slope1
+			pixel = (midx1 + 300, midy)
+			print(pixel)
+			return pixel
+		elif (longest_left[0] == None):
+			print("no longest left")
+			slope2 = -(longest_right[3]-longest_right[1])/(longest_right[2]-longest_right[0])
+			midx2 = longest_right[0] + (longest_right[1]-midy)//slope2
+			pixel = (midx2 + one_lane_offset, midy)
+			print(pixel)
+			return pixel
+		x11 = longest_left[0]
 		y11 = longest_left[1]
 		x22 = longest_right[2]
 		y22 = longest_right[3]
