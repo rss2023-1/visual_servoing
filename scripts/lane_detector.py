@@ -2,7 +2,6 @@
 
 import numpy as np
 import rospy
-import imutils
 import pdb
 
 import cv2
@@ -62,7 +61,7 @@ class LaneDetector():
 		LINE_FOLLOWER = False
 		rotated = image
 		if (ZED_UPSIDEDOWN):
-			rotated = imutils.rotate(image, 180)
+			rotated = cv2.rotate(image, cv2.ROTATE_180)
 
 		if (LINE_FOLLOWER):
 			h = image_msg.height
@@ -204,7 +203,7 @@ class LaneDetector():
 			bbox: ((x1, y1), (x2, y2)); the bounding box of the cone, unit in px
 					(x1, y1) is the top left of the bbox and (x2, y2) is the bottom right of the bbox
 		"""
-		LANE_SLOPE_MIN = 0.1
+		LANE_SLOPE_MIN = 0.05
 		LANE_SLOPE_MAX = 1
 		LANE_Y_THRESHOLD = 220
 		########## YOUR CODE STARTS HERE ##########
@@ -259,7 +258,7 @@ class LaneDetector():
 			for line in lines:
 				for x1,y1,x2,y2 in line:
 					line_slope = abs(float(y2 - y1) / (x2 - x1))
-					print(line_slope)
+					# print(line_slope)
 					if (line_slope > LANE_SLOPE_MIN and max(y2, y1) > LANE_Y_THRESHOLD):
 						#print(line)
 						filtered_lines.append(line)
@@ -287,7 +286,8 @@ class LaneDetector():
 		print(lines.shape)
 
 		# Draw the lines on the  image
-		if(longest_right[0] == None):
+		"""
+                if(longest_right[0] == None):
 			print("no longest right found")
 		else:
 			cv2.line(line_image,(longest_right[0],longest_right[1]),(longest_right[2],longest_right[3]),(0,0,255),5)
@@ -295,12 +295,36 @@ class LaneDetector():
 			print("no longest left found")
 		else:
 			cv2.line(line_image,(longest_left[0],longest_left[1]),(longest_left[2],longest_left[3]),(0,0,255),5)
-		lines_edges = cv2.addWeighted(img, 0.8, line_image, 1, 0)
+		"""
+                lines_edges = cv2.addWeighted(img, 0.8, line_image, 1, 0)
 
 		# Draw center pixel on the image
 		lookahead = 150 # distance from bottom edge
 		n = img.shape[0]
-		x11 = longest_left[0]
+                print(img.shape)
+                midy = n - lookahead
+                one_lane_offset = 100
+
+                if (longest_right[0] == None and longest_left[0] == None):
+                    print("no lines!")
+                    mid_x = image.shape[1]/2
+                    return (mid_x, lookahead)
+                elif (longest_right[0] == None):
+                    print("no longest right")
+                    slope1 = -(longest_left[3]-longest_left[1])/(longest_left[2]-longest_left[0])
+                    midx1 = longest_left[0] + (longest_left[1]-midy)//slope1
+                    pixel = (midx1 + 300, midy)
+                    print(pixel)
+                    return pixel
+                elif (longest_left[0] == None):
+                    print("no longest left")
+                    slope2 = -(longest_right[3]-longest_right[1])/(longest_right[2]-longest_right[0])
+                    midx2 = longest_right[0] + (longest_right[1]-midy)//slope2
+                    pixel = (midx2 + one_lane_offset, midy)
+                    print(pixel)
+                    return pixel
+
+                x11 = longest_left[0]
 		y11 = longest_left[1]
 		x22 = longest_right[2]
 		y22 = longest_right[3]
@@ -310,8 +334,6 @@ class LaneDetector():
 		slope2 = -(longest_right[3]-longest_right[1])/(longest_right[2]-longest_right[0])
 		#print(slope2)
 
-
-		midy = n - lookahead
 		midx1 = x11 + (y11-midy)//slope1
 		#print('midx1',midx1)
 		midx2 = x22 + (y22-midy)//slope2
