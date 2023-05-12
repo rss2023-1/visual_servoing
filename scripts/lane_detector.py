@@ -2,7 +2,6 @@
 
 import numpy as np
 import rospy
-import imutils
 import pdb
 
 import cv2
@@ -62,7 +61,7 @@ class LaneDetector():
 		LINE_FOLLOWER = False
 		rotated = image
 		if (ZED_UPSIDEDOWN):
-			rotated = imutils.rotate(image, 180)
+			rotated = cv2.rotate(image, cv2.ROTATE_180)
 
 		if (LINE_FOLLOWER):
 			h = image_msg.height
@@ -187,7 +186,7 @@ class LaneDetector():
 		for line in lines:
 			for x1,y1,x2,y2 in line:
 				line_slope = float(y2 - y1) / (x2 - x1)
-				if (slope_filter(line_slope)):
+				if (slope_filter(line_slope, x1, y1, x2, y2)):
 					length = ((x2-x1)**2 + (y2-y1)**2)**(1/2)
 					if (length > max):
 						max = length
@@ -259,7 +258,7 @@ class LaneDetector():
 			for line in lines:
 				for x1,y1,x2,y2 in line:
 					line_slope = abs(float(y2 - y1) / (x2 - x1))
-					print(line_slope)
+					# print(line_slope)
 					if (line_slope > LANE_SLOPE_MIN and max(y2, y1) > LANE_Y_THRESHOLD):
 						#print(line)
 						filtered_lines.append(line)
@@ -281,13 +280,33 @@ class LaneDetector():
 		# cv2.line(line_image,(left_line_frame[0],left_line_frame[1]),(left_line_frame[2],left_line_frame[3]),(0,255,0),5)
 		# #cv2.line(line_image, (0, 0), (10, 1000), 5)
 		print(filtered_lines.shape)
-
-		longest_right = self.select_longest(filtered_lines, lambda slope: slope > LANE_SLOPE_MIN)
-		longest_left = self.select_longest(filtered_lines, lambda slope: slope < -1 * LANE_SLOPE_MIN)
+		width = img.shape[1]
+		def left_filter(slope, x1, y1, x2, y2):
+			if slope < -1 * LANE_SLOPE_MIN:
+				# if y2 is higher than y1 (less is higher)
+				if (y1 > y2):
+					# check if higher x is in right 1/3
+					return x2 < (width * 2/3)
+				else:
+					return x1 < (width * 2/3)
+			return False
+		
+		def right_filter(slope, x1, y1, x2, y2):
+			if slope > LANE_SLOPE_MIN:
+				# if y2 is higher than y1 (less is higher)
+				if (y1 > y2):
+					# check if higher x is in right 1/3
+					return x2 > (width * 1/3)
+				else:
+					return x1 > (width * 1/3)
+			return False
+					
+		longest_right = self.select_longest(filtered_lines, right_filter)
+		longest_left = self.select_longest(filtered_lines, left_filter)
 		print(lines.shape)
-
 		# Draw the lines on the  image
-		if(longest_right[0] == None):
+		"""
+                if(longest_right[0] == None):
 			print("no longest right found")
 		else:
 			cv2.line(line_image,(longest_right[0],longest_right[1]),(longest_right[2],longest_right[3]),(0,0,255),5)
@@ -295,11 +314,33 @@ class LaneDetector():
 			print("no longest left found")
 		else:
 			cv2.line(line_image,(longest_left[0],longest_left[1]),(longest_left[2],longest_left[3]),(0,0,255),5)
-		lines_edges = cv2.addWeighted(img, 0.8, line_image, 1, 0)
+		"""
+        #lines_edges = cv2.addWeighted(img, 0.8, line_image, 1, 0)
 
 		# Draw center pixel on the image
 		lookahead = 150 # distance from bottom edge
 		n = img.shape[0]
+		print(img.shape)
+		midy = n - lookahead
+		one_lane_offset = 10
+		if (longest_right[0] == None and longest_left[0] == None):
+			print("no lines!")
+			mid_x = image.shape[1]/2
+			return (mid_x, lookahead)
+		elif (longest_right[0] == None):
+			print("no longest right")
+			slope1 = -(longest_left[3]-longest_left[1])/(longest_left[2]-longest_left[0])
+			midx1 = longest_left[0] + (longest_left[1]-midy)//slope1
+			pixel = (midx1 + 300, midy)
+			print(pixel)
+			return pixel
+		elif (longest_left[0] == None):
+			print("no longest left")
+			slope2 = -(longest_right[3]-longest_right[1])/(longest_right[2]-longest_right[0])
+			midx2 = longest_right[0] + (longest_right[1]-midy)//slope2
+			pixel = (midx2 + one_lane_offset, midy)
+			print(pixel)
+			return pixel
 		x11 = longest_left[0]
 		y11 = longest_left[1]
 		x22 = longest_right[2]
@@ -310,8 +351,6 @@ class LaneDetector():
 		slope2 = -(longest_right[3]-longest_right[1])/(longest_right[2]-longest_right[0])
 		#print(slope2)
 
-
-		midy = n - lookahead
 		midx1 = x11 + (y11-midy)//slope1
 		#print('midx1',midx1)
 		midx2 = x22 + (y22-midy)//slope2
@@ -321,19 +360,19 @@ class LaneDetector():
 		center_pixel = (midx,midy)
 
 		# draws intermediate and center pixel locations
-		#lines_edges_center = cv2.circle(lines_edges,(int(center_pixel[0]),int(center_pixel[1])) , 5, (0, 255, 0), 2) # green
-		#lines_edges_midx1 = cv2.circle(lines_edges_center,(int(midx1),int(midy)) , 5, (255, 255, 0), 2) # cyan
-		#lines_edges_midx2 = cv2.circle(lines_edges_midx1,(int(midx2),int(midy)) , 5, (255, 0, 255), 2) # purple
+		# lines_edges_center = cv2.circle(lines_edges,(int(center_pixel[0]),int(center_pixel[1])) , 5, (0, 255, 0), 2) # green
+		# lines_edges_midx1 = cv2.circle(lines_edges_center,(int(midx1),int(midy)) , 5, (255, 255, 0), 2) # cyan
+		# lines_edges_midx2 = cv2.circle(lines_edges_midx1,(int(midx2),int(midy)) , 5, (255, 0, 255), 2) # purple
 
-		#lines_edges_center = cv2.addWeighted(lines_edges, 0.8, target_pixel, 1, 0)
+		# lines_edges_center = cv2.addWeighted(lines_edges, 0.8, target_pixel, 1, 0)
 
-		#cv2.imshow('test',lines_edges)
-		#cv2.imshow('test',lines_edges_center)
+		# cv2.imshow('test',lines_edges)
+		# cv2.imshow('test',lines_edges_center)
 		# waits for user to press any key
 		# (this is necessary to avoid Python kernel form crashing)
-		#cv2.waitKey(0) 
+		# cv2.waitKey(0) 
 		# closing all open windows
-		#cv2.destroyAllWindows()
+		# cv2.destroyAllWindows()
 
 		return center_pixel
 
@@ -349,6 +388,7 @@ if abs(arg_sum) > (45*np.pi/180)
 	drive.steering_angle = kp*arg_sum # assuming positive steering is right, check this """
 
 if __name__ == '__main__':
+
     try:
         rospy.init_node('LaneDetector', anonymous=True)
         LaneDetector()

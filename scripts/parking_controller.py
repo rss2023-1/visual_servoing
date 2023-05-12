@@ -23,7 +23,7 @@ class ParkingController():
             ParkingError, queue_size=10)
 
         self.parking_distance = 0 # meters; try playing with this number!
-        self.forward_speed = 1.5
+        self.forward_speed = 3.0
         self.reverse_speed = -0.5
         self.relative_x = 0
         self.relative_y = 0
@@ -33,7 +33,11 @@ class ParkingController():
                               # will increase distance backed away, seems relatively
                               # balanaced rn
         self.reverse = self.reverse_time 
-
+        
+        self.last_error = 0
+        self.last_time = rospy.get_time()
+        self.Kd = 0.01
+        self.Kp = 0.3
     def seeCone(self): # Replace this funciton with modules 1 and 2, currently simulates if cone is within camera FOV
         # theta_max = 36*np.pi/180 
         # theta_min = -36*np.pi/180 # Assume camera FOV 72 deg
@@ -47,6 +51,7 @@ class ParkingController():
             return True
 
     def relative_cone_callback(self, msg):
+        right_camera_offset = -0.5
         self.relative_x = msg.x_pos
         self.relative_y = msg.y_pos
         drive_cmd = AckermannDriveStamped()
@@ -66,6 +71,17 @@ class ParkingController():
         else:
             theta = np.arctan2(self.relative_y, self.relative_x)
             dist = np.sqrt(self.relative_x**2+self.relative_y**2)
+            
+            now = rospy.get_time()
+            dt = now - self.last_time
+            error = theta
+            d_error = error - self.last_error
+            derivative = self.Kd * d_error/float(dt)
+	    pre_clip = self.Kp * error + derivative
+            steer = max(-0.015, min(pre_clip, 0.015))
+
+            self.last_time = now
+            self.last_error = error
 
             if self.seeCone():
                 if abs(dist-self.parking_distance) < 0.05 and abs(theta) <= 0.05: # If within distance and angle tolerenace, park
@@ -75,7 +91,7 @@ class ParkingController():
                 elif dist > self.parking_distance: # If away from cone, control theta proportionally to align upon closing gap
                     if dist > self.parking_distance:
                         if theta != 0:
-                            drive_cmd.drive.steering_angle = theta - 0.031
+                            drive_cmd.drive.steering_angle = steer -0.031
                         else:
                             drive_cmd.drive.steering_angle = 0
                 elif dist < self.parking_distance and abs(theta) <= 0.05: # If too close too cone but aligned, back up

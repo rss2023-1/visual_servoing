@@ -1,0 +1,18 @@
+[SIFT] not enough matches; matches:  2
+[SIFT] not enough matches; matches:  8
+[SIFT] not enough matches; matches:  8
+('./test_images_citgo/citgo1.jpeg', 0.8003774843086668)
+('./test_images_citgo/citgo2.jpeg', 0.6319142013719089)
+('./test_images_citgo/citgo3.jpeg', 0.7745097218563305)
+('./test_images_citgo/citgo4.jpeg', 0.0)
+('./test_images_citgo/citgo5.jpeg', 0.0)
+('./test_images_citgo/citgo6.jpeg', 0.6323892613028611)
+('./test_images_citgo/citgo7.jpeg', 0.6192025147138511)
+('./test_images_citgo/citgo8.jpeg', 0.7581043036197145)
+('./test_images_citgo/citgo9.jpeg', 0.6950009738968093)
+('./test_images_citgo/citgo10.jpeg', 0.77847385096032)
+('./test_images_citgo/citgo11.jpeg', 0.8908164570745112)
+('./test_images_citgo/citgo12.jpeg', 0.0)
+('./test_images_citgo/citgo13.jpeg', 0.0)
+('./test_images_citgo/citgo14.jpeg', 0.8661321335117405)
+average value 0.5319229216154796
