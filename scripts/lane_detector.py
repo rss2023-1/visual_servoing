@@ -203,7 +203,7 @@ class LaneDetector():
 			bbox: ((x1, y1), (x2, y2)); the bounding box of the cone, unit in px
 					(x1, y1) is the top left of the bbox and (x2, y2) is the bottom right of the bbox
 		"""
-		LANE_SLOPE_MIN = 0.1
+		LANE_SLOPE_MIN = 0.05
 		LANE_SLOPE_MAX = 1
 		LANE_Y_THRESHOLD = 220
 		########## YOUR CODE STARTS HERE ##########
